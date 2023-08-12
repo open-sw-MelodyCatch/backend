@@ -1,7 +1,7 @@
 import pymongo
 from transformers import AutoTokenizer
 
-connection = pymongo.MongoClient("mongodb+srv://Kimgrace:sir439@experiment.yistdbf.mongodb.net/")
+connection = pymongo.MongoClient("mongodb+srv://{username}:{pw}@experiment.yistdbf.mongodb.net/")
 
 db = connection.experiment
 
