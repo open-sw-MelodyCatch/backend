@@ -112,7 +112,7 @@ const initialData =  [
 (async () => {
     try {
         for (const data of initialData) {
-            const query = {Topic: data.Topic, Hypothesis:data.Hypothesis};
+            const query = {Topic: data.Topic, Hypothesis:data.Hypothesis, Materials:data.Materials, Process:data.Process, Result:data.Result};
             const existingExperiment = await Experiment.findOne(query);
             if (!existingExperiment) {
                 const experiment = new Experiment(data);
@@ -141,15 +141,25 @@ app.get('/api/search', async (req, res) => {
 
     const foundTopics = new Set();
     const foundHypotheses = new Set();
+    const foundMaterials = new Set();
+    const foundProcess = new Set();
+    const foundResult = new Set();
 
     // 정확한 일치 검색
     const exactMatches = await Experiment.find({ "Topic": search }, { "_id": 0 });
     for (const x of exactMatches) {
         const topic = x.Topic;
         const hypothesis = x.Hypothesis;
+        const materials = x.Materials;
+        const Process = x.Process;
+        const Result = x.Result;
+
         if (!foundTopics.has(topic)) {
             foundTopics.add(topic);
             foundHypotheses.add(hypothesis); // 정확한 일치 검색의 경우 해당 Hypothesis도 저장
+            foundMaterials.add(materials);
+            foundProcess.add(process);
+            foundResult.add(result);
         }
         break; // 첫 번째 매치만 찾고 종료
     }
@@ -164,9 +174,16 @@ app.get('/api/search', async (req, res) => {
             for (const y of partialMatches) {
                 const topic = y.Topic;
                 const hypothesis = y.Hypothesis;
+                const materials = y.Materials;
+                const process = y.Process;
+                const result = y.Result;
+
                 if (!foundTopics.has(topic)) {
                     foundTopics.add(topic);
                     foundHypotheses.add(hypothesis); // 부분 일치 검색의 경우 해당 Hypothesis도 저장
+                    foundMaterials.add(materials);
+                    foundProcess.add(process);
+                    foundResult.add(result);
                 }
             }
         }
@@ -176,7 +193,7 @@ app.get('/api/search', async (req, res) => {
         res.status(404).json({ message: "No matching document found." });
     } else {
         const results = Array.from(foundTopics).map((topic) => {
-            return { topic, hypothesis: Array.from(foundHypotheses) };
+            return { topic, hypothesis: Array.from(foundHypotheses), materials: Array.from(foundMaterials), process: Array.from(foundProcess), result: Array.from(foundResult) };
         });
         res.status(200).json(results); // 결과를 JSON으로 반환
     }
